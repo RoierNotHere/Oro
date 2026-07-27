@@ -1,28 +1,28 @@
 from http.server import BaseHTTPRequestHandler
-import requests
+import cloudscraper  # Cambiamos requests por cloudscraper
 from bs4 import BeautifulSoup
 import json
-import re # Importante para limpiar el texto
+import re
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = "https://www.inversoro.es/precio-del-oro/en-tiempo-real/onzas/USD/"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         
         try:
-            res = requests.get(url, headers=headers, timeout=10)
-            soup = BeautifulSoup(res.text, 'html.parser')
+            # Creamos el scraper para evadir el bloqueo
+            scraper = cloudscraper.create_scraper()
+            res = scraper.get(url, timeout=10)
             
+            # Lanzamos error si la respuesta no es 200 OK
+            res.raise_for_status()
+            
+            soup = BeautifulSoup(res.text, 'html.parser')
             precio_element = soup.find("span", {"name": "current_price_field"})
             
             if precio_element:
-                # 1. Obtenemos el texto sucio: "\n 4 674.53 € \n"
                 texto_sucio = precio_element.text
-                
-                # 2. LIMPIEZA TOTAL: Solo dejamos números y el punto decimal
-                # Quitamos espacios, símbolos de moneda y saltos de línea
+                # Limpieza: quitamos todo excepto números y puntos
                 precio_limpio = re.sub(r'[^0-9.]', '', texto_sucio.replace(',', '.'))
-                
                 status = "success"
             else:
                 precio_limpio = "2450.00"
@@ -37,7 +37,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         
-        # Ahora el JSON enviará: {"precio": "4674.53", "status": "success"}
         self.wfile.write(json.dumps({
             "precio": precio_limpio,
             "status": status
