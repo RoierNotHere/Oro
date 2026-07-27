@@ -70,7 +70,7 @@ class handler(BaseHTTPRequestHandler):
         global cache_oro
         
         ahora = time.time()
-        TIEMPO_CACHE = 1800  # 30 minutos
+        TIEMPO_CACHE = 600  # 10 minutos
         
         # Comprobar si la caché tiene datos válidos recientes
         if cache_oro["datos"] and (ahora - cache_oro["timestamp"] < TIEMPO_CACHE):
