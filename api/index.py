@@ -30,16 +30,10 @@ class handler(BaseHTTPRequestHandler):
                     precio_raw = fila.find('td', id='p')
                     precio = precio_raw.text.strip() if precio_raw else "N/A"
                     
-                    # Extraemos el cambio (nch) y el porcentaje (pch)
-                    cambio = fila.find('td', id='nch').text.strip() if fila.find('td', id='nch') else "0"
-                    
                     payload = {
                         "material": "Oro",
                         "precio": precio,
-                        "unidad": "USD/t.oz",
-                        "cambio": cambio,
-                        "status": "success",
-                        "fuente": "Trading Economics"
+                        "status": "success"
                     }
                     status_code = 200
                 else:
